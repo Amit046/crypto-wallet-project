@@ -1,0 +1,28 @@
+
+# Scala / sbt build files
+target/
+project/target/
+project/project/
+.bloop/
+.metals/
+
+# IDE
+.vscode/
+
+# Generated output
+output/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db

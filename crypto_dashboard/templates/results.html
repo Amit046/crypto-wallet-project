@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Illicit Bitcoin transaction detection with Apache Spark</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <strong>Illicit Bitcoin transaction detection</strong>
+    <span>INT315 Cluster Computing, Apache Spark project</span>
+    <a class="back" href="{{ url_for('monitor') }}">Open the live monitor</a>
+  </div>
+  <nav aria-label="Project stages">
+    <ol class="chain" id="chain">
+      <li><button type="button" data-go="0">Overview</button></li>
+      <li><button type="button" data-go="1">Spark SQL<small>CO5</small></button></li>
+      <li><button type="button" data-go="2">MLlib<small>CO4</small></button></li>
+      <li><button type="button" data-go="3">GraphX<small>CO6</small></button></li>
+      <li><button type="button" data-go="4">Combined<small>ML + graph</small></button></li>
+      <li><button type="button" data-go="5">Takeaways</button></li>
+    </ol>
+  </nav>
+</header>
+
+<main id="stage" tabindex="-1">
+  <div id="banner" class="banner" hidden></div>
+
+  <!-- 0. Overview -->
+  <section class="slide s-overview" aria-labelledby="t0">
+    <div class="overview-text">
+      <h1 id="t0">Can Spark find illicit Bitcoin transactions?</h1>
+      <p class="lead" id="ov-lead"></p>
+      <dl class="facts" id="ov-facts"></dl>
+    </div>
+    <figure class="network">
+      <svg id="net" viewBox="0 0 640 460" role="img" aria-label="Schematic transaction network with two clusters of illicit transactions"></svg>
+      <figcaption>
+        <span class="key"><i class="dot illicit"></i>Known illicit</span>
+        <span class="key"><i class="dot licit"></i>Known licit</span>
+        <span class="key"><i class="dot unknown"></i>Unlabeled</span>
+        <span class="note">Schematic picture, not the real data.</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- 1. Spark SQL -->
+  <section class="slide" aria-labelledby="t1" hidden>
+    <div class="slide-head">
+      <h2 id="t1"></h2>
+      <span class="co">CO5 Spark SQL</span>
+    </div>
+    <div class="grid sql-grid">
+      <div class="panel">
+        <h3>Class split across all transactions</h3>
+        <div class="chart-box donut"><canvas id="c-donut"></canvas></div>
+        <ul class="legend" id="donut-legend"></ul>
+      </div>
+      <div class="panel">
+        <h3>Known illicit transactions in each time step</h3>
+        <div class="chart-box"><canvas id="c-steps"></canvas></div>
+        <p class="caption" id="steps-caption"></p>
+      </div>
+    </div>
+    <p class="why" id="sql-why"></p>
+  </section>
+
+  <!-- 2. MLlib -->
+  <section class="slide" aria-labelledby="t2" hidden>
+    <div class="slide-head">
+      <h2 id="t2"></h2>
+      <span class="co">CO4 MLlib</span>
+    </div>
+    <div class="metrics" id="metrics"></div>
+    <div class="grid ml-grid">
+      <div class="panel">
+        <h3>Confusion matrix on the test data</h3>
+        <div class="cm" id="cm"></div>
+      </div>
+      <div class="panel">
+        <h3>Why accuracy alone is misleading</h3>
+        <p id="ml-baseline"></p>
+        <p id="ml-setup" class="muted"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. GraphX -->
+  <section class="slide" aria-labelledby="t3" hidden>
+    <div class="slide-head">
+      <h2 id="t3"></h2>
+      <span class="co">CO6 GraphX</span>
+    </div>
+    <p class="why" id="gx-size"></p>
+    <div class="grid gx-grid">
+      <div class="panel">
+        <h3>Average number of links per transaction</h3>
+        <div class="chart-box short"><canvas id="c-degree"></canvas></div>
+        <p class="caption" id="degree-caption"></p>
+      </div>
+      <div class="panel">
+        <h3>Clusters with the most known illicit transactions</h3>
+        <div class="chart-box short"><canvas id="c-clusters"></canvas></div>
+        <p class="caption" id="cluster-caption"></p>
+      </div>
+      <div class="panel wide">
+        <h3>Most central transactions by PageRank</h3>
+        <div class="pr-wrap">
+          <table class="data" id="pr-table"></table>
+          <p class="caption" id="pr-caption"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Combined -->
+  <section class="slide" aria-labelledby="t4" hidden>
+    <div class="slide-head">
+      <h2 id="t4"></h2>
+      <span class="co">ML + GraphX</span>
+    </div>
+    <div class="grid comb-grid">
+      <div class="panel">
+        <h3 id="comb-chart-title"></h3>
+        <div class="chart-box"><canvas id="c-comb"></canvas></div>
+      </div>
+      <div class="verdict">
+        <div class="lift"><span id="lift-num"></span><small>lift = flagged ÷ baseline</small></div>
+        <p id="verdict-text"></p>
+        <p class="muted" id="verdict-detail"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Takeaways -->
+  <section class="slide" aria-labelledby="t5" hidden>
+    <div class="slide-head">
+      <h2 id="t5"></h2>
+      <span class="co">CO4 CO5 CO6</span>
+    </div>
+    <div class="three">
+      <div>
+        <h3>What we found</h3>
+        <ul id="found"></ul>
+      </div>
+      <div>
+        <h3>What limits these results</h3>
+        <ul id="limits"></ul>
+      </div>
+      <div>
+        <h3>What we would do next</h3>
+        <ul id="next"></ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="bottom">
+  <span>Use the left and right arrow keys to change slide. Press F for full screen.</span>
+  <span id="counter"></span>
+  <span id="source"></span>
+</footer>
+
+<script>const DATA = {{ data | tojson }};</script>
+<script src="{{ url_for('static', filename='chart.umd.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

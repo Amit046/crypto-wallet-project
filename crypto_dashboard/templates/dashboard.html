@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transaction risk monitor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dash.css') }}">
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">
+    <strong>Transaction risk monitor</strong>
+    <span>INT315 Cluster Computing, Spark pipeline on the Elliptic Bitcoin data</span>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button type="button" role="tab" data-view="tx" aria-selected="true">Transactions</button>
+    <button type="button" role="tab" data-view="clusters" aria-selected="false">Clusters</button>
+    <button type="button" role="tab" data-view="model" aria-selected="false">Model scores</button>
+  </nav>
+  <a class="ext" href="{{ url_for('results_slides') }}">Results slides</a>
+</header>
+
+<section id="empty" class="empty" hidden>
+  <h1>No transaction data yet</h1>
+  <p>The monitor needs two files from the Scala program, <code>transactions.csv</code> and <code>edges.csv</code>.
+     It looked in:</p>
+  <p class="path" id="empty-path"></p>
+  <ol>
+    <li>Replace <code>Main.scala</code> with the new version that has Stage 5 (export for the dashboard).</li>
+    <li>Run <code>sbt run</code> in the project folder and wait until it prints that the dashboard data was saved.</li>
+    <li>Refresh this page.</li>
+  </ol>
+  <p class="muted">The slides at <a href="{{ url_for('results_slides') }}">Results slides</a> work without these files.</p>
+</section>
+
+<div id="app" hidden>
+  <section class="kpis" id="kpis" aria-label="Key numbers"></section>
+  <section class="pipeline" id="pipeline" aria-label="What the pipeline did"></section>
+
+  <main class="workspace">
+
+    <!-- Transactions -->
+    <div id="view-tx" class="view split">
+      <section class="pane list" aria-label="Transactions">
+        <div class="filters">
+          <input id="q" type="search" placeholder="Search a transaction ID" autocomplete="off" aria-label="Search a transaction ID">
+          <select id="f-label" aria-label="Known label">
+            <option value="all">Any known label</option>
+            <option value="1">Known illicit</option>
+            <option value="2">Known licit</option>
+            <option value="unknown">Unlabeled</option>
+          </select>
+          <select id="f-flag" aria-label="Model verdict">
+            <option value="all">Any model verdict</option>
+            <option value="1">Flagged by model</option>
+            <option value="0">Not flagged</option>
+          </select>
+          <select id="f-sort" aria-label="Sort by">
+            <option value="risk">Sort: highest risk</option>
+            <option value="deg">Sort: most links</option>
+            <option value="pr">Sort: PageRank</option>
+            <option value="csize">Sort: cluster size</option>
+          </select>
+        </div>
+        <div class="quick">
+          <span>Quick picks</span>
+          <button type="button" id="qp-flagged">Unlabeled, flagged by model</button>
+          <button type="button" id="qp-illicit">Known illicit</button>
+          <button type="button" id="qp-missed">Illicit the model missed</button>
+          <button type="button" id="qp-hub">Most connected</button>
+        </div>
+        <div class="table-wrap">
+          <table class="grid" id="tx-table">
+            <thead>
+              <tr>
+                <th>Transaction</th><th class="num">Step</th><th>Known label</th>
+                <th>Model risk</th><th>Verdict</th><th class="num">Links</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <button type="button" id="prev">Previous</button>
+          <span id="page-info"></span>
+          <button type="button" id="next">Next</button>
+        </div>
+      </section>
+
+      <section class="pane detail" id="tx-detail" aria-live="polite">
+        <div class="placeholder">
+          <h2>Pick a transaction</h2>
+          <p>Choose a row, or use a quick pick, to see what Spark did with it: the model's risk score,
+             the links around it, and the cluster it belongs to.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Clusters -->
+    <div id="view-clusters" class="view split" hidden>
+      <section class="pane list" aria-label="Clusters">
+        <div class="filters">
+          <select id="c-sort" aria-label="Sort clusters">
+            <option value="illicit">Sort: most known illicit</option>
+            <option value="density">Sort: highest illicit share</option>
+            <option value="flagged">Sort: most flagged by model</option>
+            <option value="size">Sort: largest</option>
+          </select>
+          <span class="muted small" id="c-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="grid" id="cl-table">
+            <thead>
+              <tr>
+                <th>Cluster</th><th class="num">Size</th><th>Make-up</th>
+                <th class="num">Illicit</th><th class="num">Flagged</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <button type="button" id="c-prev">Previous</button>
+          <span id="c-page-info"></span>
+          <button type="button" id="c-next">Next</button>
+        </div>
+      </section>
+      <section class="pane detail" id="cl-detail" aria-live="polite">
+        <div class="placeholder">
+          <h2>Pick a cluster</h2>
+          <p>A cluster is a group of transactions that are linked to each other, found with GraphX
+             connected components.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Model scores -->
+    <div id="view-model" class="view model-view" hidden>
+      <section class="pane chart-pane">
+        <h2>How the model scored every transaction</h2>
+        <p class="muted">Risk is the model's probability that a transaction is illicit. The three bars in each
+           band split the transactions by what we already know about them.</p>
+        <div class="chart-box"><canvas id="c-hist"></canvas></div>
+      </section>
+      <section class="pane notes" id="model-notes"></section>
+    </div>
+
+  </main>
+</div>
+
+<script>const BOOT = {{ boot | tojson }};</script>
+<script src="{{ url_for('static', filename='chart.umd.js') }}"></script>
+<script src="{{ url_for('static', filename='vis-network.min.js') }}"></script>
+<script src="{{ url_for('static', filename='dash.js') }}"></script>
+</body>
+</html>
