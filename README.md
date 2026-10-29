@@ -24,7 +24,7 @@ It also includes a Flask-based dashboard for presenting analysis results.
 - **Graph Analytics:** GraphX
 - **Dashboard:** Flask
 - **Build Tool:** SBT
-- **Dataset:** Elliptic Bitcoin Transaction Dataset
+- **Dataset:** Elliptic Bitcoin Transaction Dataset (Kaggle)
 
 ## Project Features
 
