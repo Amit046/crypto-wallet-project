@@ -7,6 +7,13 @@ A big data analytics project designed to analyze Bitcoin transactions and identi
 The project analyzes Bitcoin transaction data to explore transaction patterns, classify transactions, and investigate relationships between transactions using distributed data processing and machine learning techniques.
 
 It also includes a Flask-based dashboard for presenting analysis results.
+## pictures
+<img width="1917" height="877" alt="image" src="https://github.com/user-attachments/assets/5886d93d-57f1-4309-8383-b31a6ba0d64d" />
+<img width="1917" height="878" alt="image" src="https://github.com/user-attachments/assets/e343d127-e231-4e2c-8dc4-7f3e1598613a" />
+<img width="1918" height="873" alt="image" src="https://github.com/user-attachments/assets/a290a896-0b7f-4829-ab75-2a7a6a581161" />
+
+
+
 
 ## Tech Stack
 
